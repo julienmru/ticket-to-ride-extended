@@ -169,6 +169,17 @@ io.on('connection', (socket) => {
             if (game.endGameNow) {
                 socket.emit('player-overview', game.getUserProperties());
                 socket.emit('final-score', game.calculateScore());
+                // The first time someone fetches the final score, schedule
+                // the game to be evicted from the in-memory map so it stops
+                // leaking. The 30-minute window gives every player time to
+                // hit /score (and refresh) before we drop the data.
+                if (!game.cleanupScheduled) {
+                    game.cleanupScheduled = true;
+                    setTimeout(() => {
+                        console.log(`[CLEANUP] Removing finished game ${game.gameID}`);
+                        games.delete(game.gameID);
+                    }, 30 * 60 * 1000);
+                }
             } else {
                 socket.emit('play');
             }
