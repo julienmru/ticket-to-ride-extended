@@ -147,6 +147,26 @@ function drawOwnDestinations(data, completed) {
 
             routeCardContainer.append(completedOVerlay);
         }
+
+        // Re-create the blue city-highlight dots on the map. These are
+        // normally added by toggleActivationDestiCard when a destination
+        // is picked, but they only live in the DOM so a page reload
+        // loses them. Restore them whenever we redraw the player's
+        // destinations from the server. Issue #84.
+        addDestinationCityHighlights(destination);
+    }
+}
+
+function addDestinationCityHighlights(destination) {
+    let imageLocation = document.getElementById(destination.continent);
+    if (!imageLocation) return;
+    for (let station of [destination.stationA, destination.stationB]) {
+        if (document.getElementById(station + "Highlight")) continue;
+        let highlight = document.createElement('img');
+        highlight.src = "images/cityHighlights/" + destination.continent + "/" + station + ".png";
+        highlight.id = station + "Highlight";
+        highlight.classList.add("dots");
+        imageLocation.append(highlight);
     }
 }
 
