@@ -14,58 +14,76 @@ const imagery = function(gameID) {
     this.greyModulation = {saturation: 0, brightness: 1.6};
     this.lightblueModulation = {hue: -75, brightness: 2, saturation: 2};
     this.yellowModulation = {hue: 140, brightness: 2, saturation: 2};
+
+    // Per-continent serial queues to avoid race conditions when multiple
+    // wagon/station compositions are requested in quick succession.
+    // Each queued task reads `${continent}WagonImage`, composes a new layer,
+    // and writes the result back. Without serialization two concurrent
+    // tasks read the same starting image and the last writer wins,
+    // dropping the other player's trains/stations from the map. See #85.
+    this.euQueue = Promise.resolve();
+    this.usQueue = Promise.resolve();
+}
+
+imagery.prototype._enqueue = function(continent, task) {
+    const queueProp = `${continent}Queue`;
+    const next = this[queueProp].then(() => task()).catch(err => {
+        console.error(`[ERROR] imagery task on ${continent} failed:`, err);
+    });
+    this[queueProp] = next;
+    return next;
 }
 
 imagery.prototype.computeWagons = function(continent, route, color, io) {
+    return this._enqueue(continent, () => {
+        console.log(`[INFO] Drawing wagons for ${continent} ${route}`);
 
-    console.log(`[INFO] Drawing wagons for ${continent} ${route}`);
+        let wagonspath = `./public/images/trainsOnMap/${continent}/${route}.png`;
 
-    let wagonspath = `./public/images/trainsOnMap/${continent}/${route}.png`;
+        return sharp(wagonspath)
+            .modulate(this[`${color}Modulation`])
+            .toBuffer()
+            .then(data => {
+                console.log(`[INFO] Finished drawing wagons.`);
 
-    sharp(wagonspath)
-        .modulate(this[`${color}Modulation`])
-        .toBuffer()
-        .then(data => {
-            let b64 = data.toString('base64');
-            console.log(`[INFO] Finished drawing wagons.`);
-            
-            let oldimage = Buffer.from(this[`${continent}WagonImage`], 'base64');
-            sharp(data)
-                .composite([{input: oldimage}])
-                .toFormat('png')
-                .toBuffer()
-                .then(combined => {
-                    this[`${continent}WagonImage`] = combined.toString('base64');
-                    console.log(`[INFO] Finished combining old and new images.`);
-                    io.in(this.gameID).emit('mapitem', {image: this[`${continent}WagonImage`], continent: continent});
-                });
-        });
+                let oldimage = Buffer.from(this[`${continent}WagonImage`], 'base64');
+                return sharp(data)
+                    .composite([{input: oldimage}])
+                    .toFormat('png')
+                    .toBuffer();
+            })
+            .then(combined => {
+                this[`${continent}WagonImage`] = combined.toString('base64');
+                console.log(`[INFO] Finished combining old and new images.`);
+                io.in(this.gameID).emit('mapitem', {image: this[`${continent}WagonImage`], continent: continent});
+            });
+    });
 }
 
 imagery.prototype.computeStations = function(continent, city, color, io) {
+    return this._enqueue(continent, () => {
+        console.log(`[INFO] Drawing station on ${city}`);
 
-    console.log(`[INFO] Drawing station on ${city}`);
+        let stationpath = `./public/images/stations/${city}.png`;
 
-    let stationpath = `./public/images/stations/${city}.png`;
+        return sharp(stationpath)
+            .modulate(this[`${color}Modulation`])
+            .toBuffer()
+            .then(data => {
+                console.log(`[INFO] Finished drawing station.`);
 
-    sharp(stationpath)
-        .modulate(this[`${color}Modulation`])
-        .toBuffer()
-        .then(data => {
-            let b64 = data.toString('base64');
-            console.log(`[INFO] Finished drawing station.`);
-            
-            let oldimage = Buffer.from(this[`${continent}WagonImage`], 'base64');
-            sharp(data)
-                .composite([{input: oldimage}])
-                .toFormat('png')
-                .toBuffer()
-                .then(combined => {
-                    this[`${continent}WagonImage`] = combined.toString('base64');
-                    console.log(`[INFO] Finished combining old and new images.`);
-                    io.in(this.gameID).emit('mapitem', {image: this[`${continent}WagonImage`], continent: continent});
-                });
-        });
+                let oldimage = Buffer.from(this[`${continent}WagonImage`], 'base64');
+                return sharp(data)
+                    .composite([{input: oldimage}])
+                    .toFormat('png')
+                    .toBuffer();
+            })
+            .then(combined => {
+                this[`${continent}WagonImage`] = combined.toString('base64');
+                console.log(`[INFO] Finished combining old and new images.`);
+                io.in(this.gameID).emit('mapitem', {image: this[`${continent}WagonImage`], continent: continent});
+            });
+    });
 }
 
 module.exports = imagery;
