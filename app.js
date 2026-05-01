@@ -108,10 +108,17 @@ io.on('connection', (socket) => {
             return;
         }
 
+        let pid = info.playerID;
+        // Guard against stale or forged cookies. Without this, an unknown
+        // pid would crash the server on the updatePlayerSocket call below
+        // (calling .updatewebsocket on `undefined`).
+        if (!Number.isInteger(pid) || pid < 0 || pid >= game.amountOfPlayers || game[`player${pid}`] == null) {
+            socket.emit('lobby');
+            return;
+        }
+
         // Put the socket in the game room
         socket.join(info.gameID);
-
-        let pid = info.playerID;
 
         // Send game options
         socket.emit('game-options', game.getOptions());
