@@ -381,14 +381,33 @@ game.prototype.getUsDestination = function () {
 };
 
 game.prototype.mergeAllDestinations = function () {
-    while (this.longStack.length !== 0) {
-        let desti = this.longStack.pop();
+    // Pick the long-destination stack that was actually used to deal initial
+    // long destinations. The other long stacks contain copies of the same
+    // destination entries (including ones already in players' hands), so
+    // merging from them would reintroduce duplicates — see issue #86.
+    let stackToMerge;
+    if (this.options.eu && this.options.us) {
+        stackToMerge = this.longStack;
+    } else if (this.options.eu) {
+        stackToMerge = this.longEuStack;
+    } else {
+        stackToMerge = this.longUsStack;
+    }
+
+    while (stackToMerge.length !== 0) {
+        let desti = stackToMerge.pop();
         if (desti[1].continent === "eu") {
             this.euStack.push(desti);
         } else {
             this.usStack.push(desti);
         }
     }
+
+    // Drop the unused long stacks so they cannot leak duplicates later on.
+    this.longStack = [];
+    this.longEuStack = [];
+    this.longUsStack = [];
+
     this.euStack = shuffleArray(this.euStack);
     this.usStack = shuffleArray(this.usStack);
 };
