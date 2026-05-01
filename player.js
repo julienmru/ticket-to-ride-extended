@@ -79,12 +79,8 @@ player.prototype.takeTrain = function (color, open) {
     }
     this[color]++;
     this.numberOfTrainCards++;
-    if (open) {
-        if (color === "loco") {
-            this[Utilities.getRandomColor()]++;
-            this.numberOfTrainCards++;
-        }
-    }
+    // Picking a face-up locomotive consumes the player's whole turn (handled
+    // server-side by ending the round in app.js); no extra card is granted.
     return true;
 };
 

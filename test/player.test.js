@@ -83,9 +83,12 @@ test('Take Open Train Locomotive', () => {
 
     expect(returned).toBe(true);
 
-    expect(player.loco).not.toBe(0);
-    expect(player.numberOfTrainCards).toBe(2);
-    expect(sum).toBe(2);
+    // Picking an open locomotive yields exactly one loco card; the action
+    // consumes the entire turn (handled server-side), so no second card is
+    // granted.
+    expect(player.loco).toBe(1);
+    expect(player.numberOfTrainCards).toBe(1);
+    expect(sum).toBe(1);
 });
 
 test('Take Train Invalid', () => {
