@@ -295,6 +295,19 @@ game.prototype.checkEligibility = function (pid, color, routeID, continent) {
         return false;
     }
 
+    // Official Ticket to Ride rule: with 2 or 3 players only one of the two
+    // parallel tracks of a double-route can be claimed in the whole game.
+    // With 4+ players both can be claimed (but never both by the same
+    // player — already covered by hasRoute above). See issue #88.
+    if (this.amountOfPlayers <= 3) {
+        let basePrefix = routeID.slice(0, routeID.length - 2);
+        for (let claimedID of this.claimedRoutes) {
+            if (claimedID.slice(0, claimedID.length - 2) === basePrefix) {
+                return false;
+            }
+        }
+    }
+
     if (this[`player${pid}`].numberOfTrains < routeRequirements.length) {
         return false;
     }
