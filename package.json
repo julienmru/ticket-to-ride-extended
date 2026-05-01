@@ -19,6 +19,7 @@
   },
   "overrides": {
     "socket.io-parser": "3.3.3",
-    "json5": "2.2.3"
+    "json5": "2.2.3",
+    "http-cache-semantics": "4.1.1"
   }
 }
