@@ -205,12 +205,20 @@ function showScoresNew (data) {
                 let score = parseInt(document.getElementById("score" + player.id).innerText.split("Score: ")[1]);
                 score += 10;
 
+                let routecard = document.createElement('div');
+                let cardimage = document.createElement('img');
+                cardimage.src = './images/decorations/longest-path-card.png';
+                cardimage.classList.add('routecardimage');
+                routecard.classList.add('routeCard');
+                routecard.append(cardimage);
+                document.getElementById("infodiv" + player.id).append(routecard);
+
                 document.getElementById("score" + player.id).innerText = "Score: " + score;
                 document.getElementById("scoreTrain" + player.id).style.transform = "translateX(calc(-100% + " + score + "%))";
 
                 if (!sfxmuted) vapeur.play();
                 if (!sfxmuted) movingTrain.play();
-            }, 2000 * wait++); 
+            }, 2000 * wait++);
         }
 
         if (last) {
