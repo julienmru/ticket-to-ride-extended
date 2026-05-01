@@ -94,6 +94,20 @@ io.on('connection', (socket) => {
 	    	socket.emit('invalid-game');
 	    	return;
 		}
+        // Ignore late or duplicate start signals once the game has moved on.
+        if (game.gameState !== 'lobby') {
+            return;
+        }
+        // Only the host (player 0, the first to join) can start the game.
+        if (!game.player0 || game.player0.socketID !== socket.id) {
+            socket.emit('something-went-wrong', 'Only the host can start the game!');
+            return;
+        }
+        // Ticket to Ride requires at least 2 players.
+        if (game.amountOfPlayers < 2) {
+            socket.emit('something-went-wrong', 'You need at least 2 players to start!');
+            return;
+        }
         console.log('[STARTGAME] The game has been started by id ' + socket.id);
         game.gameState = 'routes';
         io.in(game.gameID).emit('start-game');
