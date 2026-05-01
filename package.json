@@ -16,5 +16,8 @@
   },
   "devDependencies": {
     "jest": "^27.4.5"
+  },
+  "overrides": {
+    "socket.io-parser": "3.3.3"
   }
 }
