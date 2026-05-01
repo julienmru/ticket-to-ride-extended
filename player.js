@@ -155,9 +155,10 @@ player.prototype.checkEligibility = function (uColor, routeRequirements, rid) {
                 this.routeClaimed(points, uColor, rLength - lRequired, lRequired, rid);
                 return true;
             } else if (this[uColor] + this.loco >= rLength && this.loco - (rLength - lRequired - this[uColor]) >= lRequired) {
-                // The player uses locomotives for the non-locomotive part as well
-                this.routeClaimed(points, uColor, this[uColor], lRequired + rLength - lRequired - this[uColor], rid);
-                return;
+                // The player uses locomotives for the non-locomotive part as
+                // well. Total locomotives spent = rLength - this[uColor].
+                this.routeClaimed(points, uColor, this[uColor], rLength - this[uColor], rid);
+                return true;
             } else {
                 return false;
             }
