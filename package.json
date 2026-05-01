@@ -18,6 +18,7 @@
     "jest": "^27.4.5"
   },
   "overrides": {
-    "socket.io-parser": "3.3.3"
+    "socket.io-parser": "3.3.3",
+    "json5": "2.2.3"
   }
 }
