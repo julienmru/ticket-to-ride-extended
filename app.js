@@ -182,8 +182,18 @@ io.on('connection', (socket) => {
 
         game["player" + pid].numberOfRoutes++;
 
-        game.checkContinuity(pid);
+        let newlyCompleted = game.checkContinuity(pid);
         io.in(game.gameID).emit('player-overview', game.getUserProperties());
+
+        // If the destination the player just accepted is already satisfied
+        // by routes they own, mark it as completed in their hand right away.
+        // Without this the ticket only flips to "completed" at end-of-game
+        // scoring, which is confusing during play. See issue #87.
+        if (game.gameState === "ongoing") {
+            for (let desti of newlyCompleted) {
+                socket.emit('player-completed-route', desti.continent + "-" + desti.stationA + "-" + desti.stationB);
+            }
+        }
 
         if (game.gameState === "routes") {
             console.log('[INFO] Player ' + pid + ' is now ready!')
