@@ -80,6 +80,7 @@ io.on('connection', (socket) => {
         if (result.status) {
             // Do the neccesary socket operations and communitcations
             socket.join(game.gameID);
+            socket.gameID = game.gameID;
             socket.emit('information', {playerID: result.id, gameID: game.gameID});
             io.in(game.gameID).emit('player-overview', game.getUserProperties());
         } else {
@@ -89,7 +90,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('start-game', () => {
-		let game = games.get(Object.keys(socket.rooms)[1]);
+		let game = games.get(socket.gameID);
 		if (game === undefined) {
 	    	socket.emit('invalid-game');
 	    	return;
@@ -133,6 +134,7 @@ io.on('connection', (socket) => {
 
         // Put the socket in the game room
         socket.join(info.gameID);
+        socket.gameID = info.gameID;
 
         // Send game options
         socket.emit('game-options', game.getOptions());
@@ -189,7 +191,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('validate-first-destinations', (data) => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         let result = game.validateFirstRoutesPicked(data);
 
         if (result.result) {
@@ -200,7 +202,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('accepted-destination', (data) => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         let pid = data.pid;
         let routeID = data.rid.split("-");
         continent = routeID[0];
@@ -244,7 +246,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('rejected-destination', (data) => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         let routeID = data.split("-");
         continent = routeID[0];
         destinationMap = continent + "Desti";
@@ -260,7 +262,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('open-train', (data) => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         let pid = data.pid;
         console.log("[INFO] Player " + pid + " took an open train.");
 
@@ -311,7 +313,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('closed-train', (pid) => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         console.log("[INFO] Player " + pid + " requested a closed train.");
 
         if (game.currentRound !== pid) {
@@ -346,7 +348,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('route-claim', (data) => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         console.log("[INFO] Player " + data.pid + " requested a route.");
 
         if (data.pid !== game.currentRound) {
@@ -397,7 +399,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('station-claim', (data) => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         console.log(`[INFO] Player ${data.pid} requested a station on ${data.city}`);
 
         if (game.currentRound !== data.pid) {
@@ -424,7 +426,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('confirmed-stations', (data) => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         game.userConfirmedStation(data.pid, data.routes);
 
         for (let desti of game.checkContinuity(data.pid)) {
@@ -439,7 +441,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('player-destination', (pid) => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         if (game.currentRound !== pid) {
             socket.emit('invalidmove', {message: 'It is currently not your turn!'});
             return;
@@ -454,7 +456,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('player-finished', () => {
-        let game = games.get(Object.keys(socket.rooms)[1]);
+        let game = games.get(socket.gameID);
         if (game.gameState === "ongoing") {
             game.nextPlayerRound();
             if (game.checkGameEnd()) {

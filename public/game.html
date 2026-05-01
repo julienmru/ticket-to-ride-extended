@@ -735,8 +735,9 @@
       </div>
 
       <!-- 3rd party JavaScript Files -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
-            integrity="sha256-bQmrZe4yPnQrLTY+1gYylfNMBuGfnT/HKsCGX+9Xuqo=" crossorigin="anonymous"></script>
+      <!-- socket.io client served by the socket.io server itself, so it
+           always matches the server version (3.x after the bump). -->
+      <script src="/socket.io/socket.io.js"></script>
       <script src="javascripts/imageMapResizer.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.1/howler.min.js" integrity="sha512-L6Z/YtIPQ7eU3BProP34WGU5yIRk7tNHk7vaC2dB1Vy1atz6wl9mCkTPPZ2Rn1qPr+vY2mZ9odZLdGYuaBk7dQ==" crossorigin="anonymous"></script>
 
