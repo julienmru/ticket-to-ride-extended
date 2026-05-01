@@ -1,21 +1,21 @@
 {
   "name": "tickettoride-extended",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "start": "node app.js",
     "test": "jest"
   },
   "dependencies": {
-    "cookie-parser": "~1.4.4",
-    "dotenv": "^8.2.0",
+    "cookie-parser": "~1.4.7",
+    "dotenv": "^8.6.0",
     "express": "~4.17.3",
-    "express-openid-connect": "^2.7.2",
-    "sharp": "^0.30.5",
+    "express-openid-connect": "^2.20.2",
+    "sharp": "^0.34.5",
     "socket.io": "^2.5.0"
   },
   "devDependencies": {
-    "jest": "^27.4.5"
+    "jest": "^29.7.0"
   },
   "overrides": {
     "json5": "2.2.3",
