@@ -275,7 +275,7 @@ io.on('connection', (socket) => {
         }
 
         if (game.thingsDone !== 0 && data.color === 'loco') {
-            socket.emit('invalidmove', {message: 'You cannot pick a locomotive at the beginning of your turn!'});
+            socket.emit('invalidmove', {message: 'A locomotive can only be picked as your first card!'});
             return;
         }
 
